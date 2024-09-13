@@ -1,0 +1,20 @@
+server:
+  port: 9090
+
+spring:
+  datasource:
+    url: jdbc:mariadb://49.50.166.122:3306/budget_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: create # (1) 스키마 생성
+    show-sql: true # (2) SQL 쿼리 출력
+    generate-ddl: true
+    properties:
+      hibernate:
+        format_sql: true
