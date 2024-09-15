@@ -16,7 +16,7 @@ public class ApiErrorResponse extends ApiResponse<String> {
         this.message = errorCode.getMessage();
     }
 
-    public static<T> ApiErrorResponse res(HttpStatus status, ErrorCode errorCode) {
-        return new ApiErrorResponse(status, errorCode);
+    public static ApiErrorResponse res(ErrorCode errorCode) {
+        return new ApiErrorResponse(errorCode.getStatus(), errorCode);
     }
 }

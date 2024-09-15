@@ -8,8 +8,8 @@ public class GeneralException extends RuntimeException{
 
     private final ErrorCode errorCode;
 
-    protected GeneralException(ErrorCode errorCode) {
-        super();
+    public GeneralException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
 }

@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(GeneralException.class)
     public ResponseEntity<ApiErrorResponse> handleGeneralException(GeneralException e) {
-        log.error("GeneralException : {}", e);
-        ApiErrorResponse errorResponse = ApiErrorResponse.res(e.getErrorCode().getStatus(), e.getErrorCode());
-        return ResponseEntity.status(e.getErrorCode().getStatus()).body(errorResponse);
+        log.error("GeneralException 발생", e);
+        ApiErrorResponse errorResponse = ApiErrorResponse.res(e.getErrorCode());
+        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
     }
 }
