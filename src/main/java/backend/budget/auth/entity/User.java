@@ -19,6 +19,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String username; // 계정명
+    private String userName; // 계정명
     private String password;
 }

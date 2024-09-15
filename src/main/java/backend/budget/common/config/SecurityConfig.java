@@ -14,12 +14,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.disable())
+                .cors(cors -> cors.disable()) // CORS 설정
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/signup", "/api/login").permitAll()
-                        .anyRequest().authenticated());
-
+                        .requestMatchers(
+                                "/api-docs/**",
+                                "/swagger-ui/**"
+                        ).permitAll().anyRequest().authenticated());
         return http.build();
     }
 

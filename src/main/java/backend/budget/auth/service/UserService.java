@@ -3,6 +3,8 @@ package backend.budget.auth.service;
 import backend.budget.auth.dto.RegisterRequest;
 import backend.budget.auth.entity.User;
 import backend.budget.auth.repository.UserRepository;
+import backend.budget.common.constants.ErrorCode;
+import backend.budget.common.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,15 +20,15 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void register(RegisterRequest request) throws IllegalAccessException {
+    public void register(RegisterRequest request) {
 
         // 계정 중복 확인
         if(userRepository.existsByUserName(request.getUserName())){
-            throw new IllegalAccessException("이미 존재하는 계정입니다.");
+            throw new GeneralException(ErrorCode.USERNAME_ALREADY_EXIST);
         }
 
         User new_user =User.builder()
-                .username(request.getUserName())
+                .userName(request.getUserName())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
