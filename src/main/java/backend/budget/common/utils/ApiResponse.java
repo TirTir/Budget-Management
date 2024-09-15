@@ -1,35 +1,19 @@
 package backend.budget.common.utils;
 
-import backend.budget.common.constants.ErrorCode;
-import backend.budget.common.constants.SuccessCode;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
-@Data @Builder
-@AllArgsConstructor
+@Data
 public class ApiResponse<T> {
-    private HttpStatus status;
-    private String message;
-    private T data;
+    private final Boolean success;
+    private final HttpStatus status;
 
-    private ApiResponse(HttpStatus status, String message) {
+    protected ApiResponse(Boolean success, HttpStatus status) {
+        this.success = success;
         this.status = status;
-        this.message = message;
     }
 
-    public static<T> ApiResponse<T> res(SuccessCode success) {
-        return new ApiResponse<>(success.getStatus(), success.getMessage());
-    }
-
-    public static<T> ApiResponse<T> res(ErrorCode error) {
-        return new ApiResponse<>(error.getStatus(), error.getMessage());
-    }
-
-    public static<T> ApiResponse<T> res(SuccessCode successCode, final T data) {
-        return ApiResponse.<T>builder()
-                .status(successCode.getStatus())
-                .message(successCode.getMessage())
-                .data(data)
-                .build();
+    public static ApiResponse res(Boolean success, HttpStatus status) {
+        return new ApiResponse(success, status);
     }
 }
