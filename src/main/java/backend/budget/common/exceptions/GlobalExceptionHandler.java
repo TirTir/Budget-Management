@@ -2,17 +2,31 @@ package backend.budget.common.exceptions;
 
 import backend.budget.common.dto.ApiErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(GeneralException.class)
-    public ResponseEntity<ApiErrorResponse> handleGeneralException(GeneralException e) {
-        log.error("GeneralException 발생", e);
-        ApiErrorResponse errorResponse = ApiErrorResponse.res(e.getErrorCode());
-        return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
+    public ApiErrorResponse handleGeneralException(GeneralException e) {
+        return new ApiErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiErrorResponse handleUsernameNotFoundException(UsernameNotFoundException e) {
+        return new ApiErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiErrorResponse handleBadCredentialsException(BadCredentialsException e) {
+        return new ApiErrorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 }
