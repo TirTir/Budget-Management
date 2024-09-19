@@ -23,6 +23,7 @@ public class JwtTokenFilter implements Filter {
 
     public JwtTokenFilter(JwtTokenProvider jwtTokenProvider, AuthService authService) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.authService = authService;
     }
 
     @Override

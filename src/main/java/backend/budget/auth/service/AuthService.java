@@ -27,20 +27,20 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional(readOnly = true)
-    public AuthResponse getAuthToken(User user){
-        log.info("Attempting authentication for user: {}", user.getUserName());
+    public AuthResponse getAuthToken(String userName, String password){
+        log.info("Attempting authentication for user: {}", userName);
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword());
+                new UsernamePasswordAuthenticationToken(userName, password);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
         String accessToken = jwtTokenProvider.createAccessToken(authentication);
         String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
 
         // RefreshToken 저장
-        RefreshToken redis = new RefreshToken(accessToken, refreshToken, user.getUserName());
+        RefreshToken redis = new RefreshToken(accessToken, refreshToken, userName);
         refreshTokenRepository.save(redis);
-        log.info("RefreshToken saved ID: {}", user.getUserName());
+        log.info("RefreshToken saved ID: {}", userName);
 
         return new AuthResponse(accessToken, refreshToken);
     }
@@ -51,7 +51,7 @@ public class AuthService {
         RefreshToken redis = refreshTokenRepository.findById(refreshToken)
                 .orElseThrow(() -> new GeneralException(ErrorCode.INVALID_AUTH_TOKEN));
 
-        User user = userRepository.findByUsername(redis.getUserName())
+        User user = userRepository.findByUserName(redis.getUserName())
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         UsernamePasswordAuthenticationToken authenticationToken =

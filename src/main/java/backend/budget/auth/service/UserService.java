@@ -42,13 +42,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public AuthResponse login(AuthRequest request) {
         // 계정 여부 확인
-        User user = userRepository.findByUsername(request.getUserName())
+        User user = userRepository.findByUserName(request.getUserName())
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if(passwordMatches){
             log.info("Create token for user: {}", user.getUserName());
-            return authService.getAuthToken(user);
+            return authService.getAuthToken(user.getUserName(), request.getPassword());
         } else {
             throw new BadCredentialsException(ErrorCode.PASSWORD_MISMATCH.getMessage());
         }

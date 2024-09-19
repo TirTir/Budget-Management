@@ -19,7 +19,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.disable()) // CORS 설정
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/signup", "/api/login").permitAll()
+                        .requestMatchers("/api/signup", "/api/signin").permitAll()
                         .requestMatchers(
                                 "/api-docs/**",
                                 "/swagger-ui/**"

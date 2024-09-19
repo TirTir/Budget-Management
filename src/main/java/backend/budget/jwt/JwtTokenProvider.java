@@ -28,13 +28,18 @@ public class JwtTokenProvider {
     private final long refreshExpirationTime;
 
     public JwtTokenProvider (
-            @Value("{JWT_SECRET_KEY") String secret,
-            @Value("{access-expiration-time}") long accessExpirationTime,
-            @Value("{refresh-expiration-time}") long refreshExpirationTime
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.token.access-expiration-time}") long accessExpirationTime,
+            @Value("${jwt.token.refresh-expiration-time}") long refreshExpirationTime
     ){
         // 시크릿 값을 복호화하여 SecretKey 생성
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+        try{
+            byte[] keyBytes = Decoders.BASE64.decode(secret);
+            this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+        } catch (GeneralException e) {
+            log.error("시크릿 키 생성 중 오류가 발생했습니다: {}", e.getMessage());
+            throw new GeneralException(ErrorCode.INVALID_SECRET_KEY);
+        }
 
         this.accessExpirationTime = accessExpirationTime;
         this.refreshExpirationTime = refreshExpirationTime;

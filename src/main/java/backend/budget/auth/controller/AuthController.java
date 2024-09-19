@@ -1,7 +1,12 @@
 package backend.budget.auth.controller;
 
+import backend.budget.auth.dto.AuthRequest;
+import backend.budget.auth.dto.AuthResponse;
 import backend.budget.auth.dto.RegisterRequest;
 import backend.budget.auth.service.UserService;
+import backend.budget.common.constants.SuccessCode;
+import backend.budget.common.dto.ApiSuccessResponse;
+import backend.budget.common.utils.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,8 +45,18 @@ public class AuthController {
             }
     )
     @PostMapping("/signup")
-    public void signup(@RequestBody @Valid RegisterRequest request){
+    public CommonResponse signup(@RequestBody @Valid RegisterRequest request){
         log.info("[회원가입 요청] ID: {}", request.getUserName());
         userService.register(request);
+        return CommonResponse.res(true, SuccessCode.SUCCESS_SIGNUP);
+    }
+
+    @Operation(
+            summary = "로그인 API"
+    )
+    @PostMapping("/signin")
+    public ApiSuccessResponse<AuthResponse> signin(@RequestBody @Valid AuthRequest request){
+        log.info("[로그인 요청] ID: {}", request.getUserName());
+        return ApiSuccessResponse.res(SuccessCode.SUCCESS_SIGNIN, userService.login(request));
     }
 }
