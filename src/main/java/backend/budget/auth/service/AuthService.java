@@ -1,6 +1,7 @@
 package backend.budget.auth.service;
 
 import backend.budget.auth.dto.AuthResponse;
+import backend.budget.auth.entity.BlackList;
 import backend.budget.auth.entity.RefreshToken;
 import backend.budget.auth.entity.User;
 import backend.budget.auth.repository.RefreshTokenRepository;
@@ -38,7 +39,7 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
 
         // RefreshToken 저장
-        RefreshToken redis = new RefreshToken(accessToken, refreshToken, userName);
+        RefreshToken redis = new RefreshToken(userName, refreshToken);
         refreshTokenRepository.save(redis);
         log.info("RefreshToken saved ID: {}", userName);
 
@@ -60,10 +61,6 @@ public class AuthService {
 
         // AccessToken 재발급
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
-
-        // redis AccessToken 업데이트
-        redis.updateAccessToken(newAccessToken);
-        refreshTokenRepository.save(redis);
 
         return newAccessToken;
     }

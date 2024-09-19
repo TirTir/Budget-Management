@@ -11,24 +11,16 @@ import java.time.LocalDateTime;
 @RedisHash(value = "refreshToken", timeToLive = 86400) // 24시간 (60 * 60 * 24)
 public class RefreshToken {
     @Id
-    private String refreshToken;
-
-    @Indexed
-    private String accessToken;
-
-    @Indexed
     private String userName;
+
+    @Indexed
+    private String refreshToken;
 
     private LocalDateTime createdAt;
 
-    public RefreshToken(String accessToken, String refreshToken, String userName) {
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
+    public RefreshToken(String userName, String refreshToken) {
         this.userName = userName;
+        this.refreshToken = refreshToken;
         this.createdAt = LocalDateTime.now();
-    }
-
-    public void updateAccessToken(String newAccessToken) {
-        this.accessToken = newAccessToken;
     }
 }
