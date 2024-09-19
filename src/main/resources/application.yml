@@ -12,9 +12,15 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      ddl-auto: create # (1) 스키마 생성
+      ddl-auto: update # (1) 스키마 생성
     show-sql: true # (2) SQL 쿼리 출력
     generate-ddl: true
     properties:
       hibernate:
         format_sql: true
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  token:
+    access-expiration-time: 43200000    # 12시간
+    refresh-expiration-time: 604800000   # 7일

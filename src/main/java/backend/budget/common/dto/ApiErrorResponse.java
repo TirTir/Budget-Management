@@ -1,6 +1,5 @@
 package backend.budget.common.dto;
 
-import backend.budget.common.constants.ErrorCode;
 import backend.budget.common.utils.ApiResponse;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -11,12 +10,12 @@ public class ApiErrorResponse extends ApiResponse<String> {
 
     private final String message;
 
-    private ApiErrorResponse(HttpStatus status, ErrorCode errorCode) {
+    public ApiErrorResponse(String message, HttpStatus status) {
         super(false, status);
-        this.message = errorCode.getMessage();
+        this.message = message;
     }
 
-    public static ApiErrorResponse res(ErrorCode errorCode) {
-        return new ApiErrorResponse(errorCode.getStatus(), errorCode);
+    public static ApiErrorResponse res(String message, HttpStatus status) {
+        return new ApiErrorResponse(message, status);
     }
 }
