@@ -1,18 +1,17 @@
 package backend.budget.auth.service;
 
-import backend.budget.auth.dto.AuthRequest;
 import backend.budget.auth.dto.AuthResponse;
 import backend.budget.auth.entity.User;
 import backend.budget.auth.repository.UserRepository;
-import backend.budget.common.constants.ErrorCode;
-import backend.budget.common.exceptions.GeneralException;
 import backend.budget.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Slf4j
 @Service
@@ -20,21 +19,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional(readOnly = true)
-    public AuthResponse auth(AuthRequest request) {
-        // 계정 여부 확인
-        User user = userRepository.findByUsername(request.getUserName())
-                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+    public AuthResponse getAuthToken(User user){
+        log.info("Attempting authentication for user: {}", user.getUserName());
 
-        boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if(passwordMatches){
-            log.info("Create token : {}", user.getUserName());
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword());
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-        } else {
-            throw new BadCredentialsException(ErrorCode.PASSWORD_MISMATCH.getMessage());
-        }
-        return null;
+        String accessToken = jwtTokenProvider.createAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+
+        return new AuthResponse(accessToken, refreshToken);
     }
 }
