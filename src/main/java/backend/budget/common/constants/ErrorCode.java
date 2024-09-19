@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ErrorCode {
     JWT_VERIFICATION(HttpStatus.UNAUTHORIZED, "토큰 검증에 실패하였습니다."),
+    INVALID_SECRET_KEY(HttpStatus.BAD_REQUEST, "JWT 시크릿 키 설정이 잘못되었습니다."),
     INVALID_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "권한 정보가 없습니다."),
     MALFORMED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 형식의 JWT 토큰입니다."),
     UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "지원되지 않는 JWT 토큰입니다."),
