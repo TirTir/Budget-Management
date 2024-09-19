@@ -4,7 +4,6 @@ import backend.budget.auth.dto.AuthResponse;
 import backend.budget.auth.entity.RefreshToken;
 import backend.budget.auth.entity.User;
 import backend.budget.auth.repository.RefreshTokenRepository;
-import backend.budget.auth.repository.UserRepository;
 import backend.budget.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

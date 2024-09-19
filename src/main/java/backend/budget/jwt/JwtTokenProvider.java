@@ -5,12 +5,18 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -37,8 +43,13 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + accessExpirationTime);
 
+        String roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         return Jwts.builder()
                 .setSubject(authentication.getName())
+                .claim("roles", roles)
                 .setIssuedAt(now)
                 .setExpiration(expireDate)
                 .signWith(secretKey, SignatureAlgorithm.HS512) // HMAC + SHA512
@@ -62,7 +73,7 @@ public class JwtTokenProvider {
     public boolean validateCredential(String token){
         try {
             Jwts.parser()
-                    .setSigningKey(secretKey.getEncoded())  // 서명 검증에 사용할 시크릿 키 설정
+                    .setSigningKey(secretKey)  // 서명 검증에 사용할 시크릿 키 설정
                     .build()
                     .parseClaimsJws(token)
                     .getBody();  // 서명 검증
@@ -79,5 +90,25 @@ public class JwtTokenProvider {
         }
 
         return false;
+    }
+
+    @Transactional(readOnly = true)
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getPayload();
+
+        String username = claims.getSubject();
+        String roles = claims.get("roles", String.class);  // 권한 정보 추출
+
+        // 권한 정보를 GrantedAuthority 리스트로 변환
+        List<GrantedAuthority> authorities = Arrays.stream(roles.split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        // 사용자 이름과 권한을 포함한 인증 객체 생성
+        return new UsernamePasswordAuthenticationToken(username, null, authorities);
     }
 }
