@@ -1,5 +1,7 @@
 package backend.budget.jwt;
 
+import backend.budget.common.constants.ErrorCode;
+import backend.budget.common.exceptions.GeneralException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -79,11 +81,14 @@ public class JwtTokenProvider {
                     .getBody();  // 서명 검증
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info(String.format("잘못된 JWT 서명입니다."));
+            log.info("잘못된 JWT 서명입니다.");
+            throw new GeneralException(ErrorCode.SIGNATURE_JWT_TOKEN);
         } catch (ExpiredJwtException e) {
             log.info(String.format("만료된 JWT 토큰입니다."));
+            throw new GeneralException(ErrorCode.EXPIRED_JWT_TOKEN);
         } catch (UnsupportedJwtException e) {
             log.info(String.format("지원되지 않는 JWT 토큰 입니다."));
+            throw new GeneralException(ErrorCode.UNSUPPORTED_JWT_TOKEN);
         } catch (IllegalArgumentException e) {
             log.info(String.format("JWT 토큰이 잘못되었습니다."));
             e.printStackTrace();
