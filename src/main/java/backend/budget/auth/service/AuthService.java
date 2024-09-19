@@ -1,7 +1,9 @@
 package backend.budget.auth.service;
 
 import backend.budget.auth.dto.AuthResponse;
+import backend.budget.auth.entity.RefreshToken;
 import backend.budget.auth.entity.User;
+import backend.budget.auth.repository.RefreshTokenRepository;
 import backend.budget.auth.repository.UserRepository;
 import backend.budget.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
@@ -31,6 +33,11 @@ public class AuthService {
 
         String accessToken = jwtTokenProvider.createAccessToken(authentication);
         String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+
+        // RefreshToken 저장
+        RefreshToken redis = new RefreshToken(refreshToken, accessToken);
+        refreshTokenRepository.save(redis);
+        log.info("RefreshToken saved ID: {}", user.getUserName());
 
         return new AuthResponse(accessToken, refreshToken);
     }
