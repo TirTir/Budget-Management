@@ -66,20 +66,22 @@ public class AuthController {
             summary = "AccessToken 갱신 API"
     )
     @PostMapping("/refresh")
-    public ApiSuccessResponse<RefreshResponse> refresh(@RequestHeader("Authorization") String accessToken,
-                                                       @RequestParam("refreshToken") String refreshToken){
+    public ApiSuccessResponse<RefreshResponse> refresh(HttpServletRequest request,
+                                                       @RequestBody RefreshRequest refreshRequest){
         log.info("[AccessToken 갱신 요청]: ");
-        return ApiSuccessResponse.res(SuccessCode.SUCCESS_TOKEN_REFRESH, authService.getRefresh(accessToken, refreshToken));
+        String accessToken = jwtTokenProvider.resolveToken(request);
+        return ApiSuccessResponse.res(SuccessCode.SUCCESS_TOKEN_REFRESH, authService.getRefresh(accessToken, refreshRequest.getRefreshToken()));
     }
 
     @Operation(
             summary = "로그아웃 API"
     )
-    @GetMapping("/logout")
-    public CommonResponse logout(@RequestHeader("Authorization") String accessToken,
-                                 @RequestParam("refreshToken") String refreshToken){
+    @PostMapping("/logout")
+    public CommonResponse logout(HttpServletRequest request,
+                                 @RequestBody RefreshRequest refreshRequest){
         log.info("[로그아웃 요청]: ");
-        userService.logout(accessToken, refreshToken);
+        String accessToken = jwtTokenProvider.resolveToken(request);
+        userService.logout(accessToken, refreshRequest.getRefreshToken());
         return CommonResponse.res(true, SuccessCode.SUCCESS_LOGOUT);
     }
 }

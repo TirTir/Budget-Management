@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 @RedisHash(value = "blackList")
 public class BlackList {
     @Id
-    private String accessToken;
+    private String id; //accessToken
 
     private String refreshToken;
 
@@ -20,7 +20,7 @@ public class BlackList {
 
 
     public BlackList(String accessToken, String refreshToken, Long expiration) {
-        this.accessToken = accessToken;
+        this.id = accessToken;
         this.refreshToken = refreshToken;
         this.expiration = expiration;
     }
