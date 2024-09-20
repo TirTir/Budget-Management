@@ -10,11 +10,14 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     JWT_VERIFICATION(HttpStatus.UNAUTHORIZED, "토큰 검증에 실패하였습니다."),
     INVALID_SECRET_KEY(HttpStatus.BAD_REQUEST, "JWT 시크릿 키 설정이 잘못되었습니다."),
-    INVALID_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "권한 정보가 없습니다."),
+    INVALID_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 Refresh 토큰입니다."),
     MALFORMED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 형식의 JWT 토큰입니다."),
     UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "지원되지 않는 JWT 토큰입니다."),
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),
     SIGNATURE_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "JWT 서명 검증에 실패하였습니다."),
+
+    BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "이미 로그아웃된 계정입니다"),
 
     USERNAME_ALREADY_EXIST(HttpStatus.CONFLICT, "이미 존재하는 계정입니다."),
     USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 사용자 계정을 찾을 수 없습니다."),

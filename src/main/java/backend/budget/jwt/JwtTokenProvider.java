@@ -5,6 +5,7 @@ import backend.budget.common.exceptions.GeneralException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -103,6 +104,20 @@ public class JwtTokenProvider {
     }
 
     @Transactional(readOnly = true)
+    public String resolveToken(HttpServletRequest request){
+        String bearerToken = request.getHeader("Authorization");
+        if(bearerToken != null && bearerToken.startsWith("Bearer ")) { // 헤더에 'Bearer' 여부 확인
+            return bearerToken.substring(7); // Bearer 제외 토큰 값 반환
+        }
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public String resolveRefreshToken(HttpServletRequest request) {
+        return request.getHeader("RefreshToken");
+    }
+
+    @Transactional(readOnly = true)
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
@@ -120,5 +135,19 @@ public class JwtTokenProvider {
 
         // 사용자 이름과 권한을 포함한 인증 객체 생성
         return new UsernamePasswordAuthenticationToken(username, null, authorities);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getExpiration(String token){
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getPayload();
+
+        Date expiration = claims.getExpiration();
+        long now = new Date().getTime();
+
+        return expiration.getTime() - now;
     }
 }
