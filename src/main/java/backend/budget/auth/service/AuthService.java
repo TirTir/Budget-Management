@@ -4,7 +4,6 @@ import backend.budget.auth.dto.AuthResponse;
 import backend.budget.auth.dto.RefreshResponse;
 import backend.budget.auth.entity.BlackList;
 import backend.budget.auth.entity.RefreshToken;
-import backend.budget.auth.entity.User;
 import backend.budget.auth.repository.BlackListRepository;
 import backend.budget.auth.repository.RefreshTokenRepository;
 import backend.budget.auth.repository.UserRepository;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;

@@ -28,6 +28,8 @@ public class JwtTokenProvider {
     private final long accessExpirationTime;
     private final long refreshExpirationTime;
 
+    private final String roles = "USER";
+
     public JwtTokenProvider (
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.token.access-expiration-time}") long accessExpirationTime,
@@ -51,10 +53,7 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + accessExpirationTime);
 
-        String roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
+        String roles = this.roles;  // 기본 권한 사용
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("roles", roles)
@@ -106,15 +105,13 @@ public class JwtTokenProvider {
     @Transactional(readOnly = true)
     public String resolveToken(HttpServletRequest request){
         String bearerToken = request.getHeader("Authorization");
+        log.info("Authorization header: {}", bearerToken);
+
         if(bearerToken != null && bearerToken.startsWith("Bearer ")) { // 헤더에 'Bearer' 여부 확인
             return bearerToken.substring(7); // Bearer 제외 토큰 값 반환
         }
+        log.warn("Authorization header is missing or invalid");
         return null;
-    }
-
-    @Transactional(readOnly = true)
-    public String resolveRefreshToken(HttpServletRequest request) {
-        return request.getHeader("RefreshToken");
     }
 
     @Transactional(readOnly = true)
@@ -126,7 +123,11 @@ public class JwtTokenProvider {
                 .getPayload();
 
         String username = claims.getSubject();
-        String roles = claims.get("roles", String.class);  // 권한 정보 추출
+        String roles = claims.get("roles", String.class);
+
+        if (roles == null || roles.isEmpty()) {
+            roles = this.roles;  // 기본 권한 설정
+        }
 
         // 권한 정보를 GrantedAuthority 리스트로 변환
         List<GrantedAuthority> authorities = Arrays.stream(roles.split(","))
