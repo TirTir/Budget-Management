@@ -1,20 +1,20 @@
 package backend.budget.common.dto;
 
+import backend.budget.common.constants.SuccessCode;
 import lombok.Getter;
-import backend.budget.common.utils.ApiResponse;
-import org.springframework.http.HttpStatus;
+import backend.budget.common.utils.CommonResponse;
 
 @Getter
-public class ApiSuccessResponse<T> extends ApiResponse {
+public class ApiSuccessResponse<T> extends CommonResponse {
 
     private final T data;
 
-    private ApiSuccessResponse(HttpStatus status, T data) {
-        super(true, status);
+    private ApiSuccessResponse(String message, T data) {
+        super(true, message);
         this.data = data;
     }
 
-    public static<T> ApiSuccessResponse<T> res(HttpStatus status, T data) {
-        return new ApiSuccessResponse<>(status, data);
+    public static<T> ApiSuccessResponse<T> res(SuccessCode status, T data) {
+        return new ApiSuccessResponse<>(status.getMessage(), data);
     }
 }

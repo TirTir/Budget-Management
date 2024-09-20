@@ -1,17 +1,20 @@
 package backend.budget.auth.controller;
 
-import backend.budget.auth.dto.RegisterRequest;
+import backend.budget.auth.dto.*;
+import backend.budget.auth.service.AuthService;
 import backend.budget.auth.service.UserService;
+import backend.budget.common.constants.SuccessCode;
+import backend.budget.common.dto.ApiSuccessResponse;
+import backend.budget.common.utils.CommonResponse;
+import backend.budget.jwt.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -20,10 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JwtTokenProvider jwtTokenProvider, AuthService authService) {
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.authService = authService;
     }
 
     @Operation(
@@ -40,8 +47,41 @@ public class AuthController {
             }
     )
     @PostMapping("/signup")
-    public void signup(@RequestBody @Valid RegisterRequest request){
+    public CommonResponse signup(@RequestBody @Valid RegisterRequest request){
         log.info("[회원가입 요청] ID: {}", request.getUserName());
         userService.register(request);
+        return CommonResponse.res(true, SuccessCode.SUCCESS_SIGNUP);
+    }
+
+    @Operation(
+            summary = "로그인 API"
+    )
+    @PostMapping("/signin")
+    public ApiSuccessResponse<AuthResponse> signin(@RequestBody @Valid AuthRequest request){
+        log.info("[로그인 요청] ID: {}", request.getUserName());
+        return ApiSuccessResponse.res(SuccessCode.SUCCESS_SIGNIN, userService.login(request));
+    }
+
+    @Operation(
+            summary = "AccessToken 갱신 API"
+    )
+    @PostMapping("/refresh")
+    public ApiSuccessResponse<RefreshResponse> refresh(HttpServletRequest request,
+                                                       @RequestBody RefreshRequest refreshRequest){
+        log.info("[AccessToken 갱신 요청]: ");
+        String accessToken = jwtTokenProvider.resolveToken(request);
+        return ApiSuccessResponse.res(SuccessCode.SUCCESS_TOKEN_REFRESH, authService.getRefresh(accessToken, refreshRequest.getRefreshToken()));
+    }
+
+    @Operation(
+            summary = "로그아웃 API"
+    )
+    @PostMapping("/logout")
+    public CommonResponse logout(HttpServletRequest request,
+                                 @RequestBody RefreshRequest refreshRequest){
+        log.info("[로그아웃 요청]: ");
+        String accessToken = jwtTokenProvider.resolveToken(request);
+        userService.logout(accessToken, refreshRequest.getRefreshToken());
+        return CommonResponse.res(true, SuccessCode.SUCCESS_LOGOUT);
     }
 }

@@ -10,7 +10,6 @@ import backend.budget.common.exceptions.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,15 +42,21 @@ public class UserService {
     @Transactional(readOnly = true)
     public AuthResponse login(AuthRequest request) {
         // 계정 여부 확인
-        User user = userRepository.findByUsername(request.getUserName())
+        User user = userRepository.findByUserName(request.getUserName())
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if(passwordMatches){
             log.info("Create token for user: {}", user.getUserName());
-            return authService.getAuthToken(user);
+            return authService.getAuthToken(user.getUserName(), request.getPassword());
         } else {
             throw new BadCredentialsException(ErrorCode.PASSWORD_MISMATCH.getMessage());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public void logout(String accessToken, String refreshToken){
+        log.info("Remove token for user: ");
+        authService.deleteAuthToken(accessToken, refreshToken);
     }
 }
