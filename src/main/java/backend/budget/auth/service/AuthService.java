@@ -1,9 +1,11 @@
 package backend.budget.auth.service;
 
 import backend.budget.auth.dto.AuthResponse;
+import backend.budget.auth.dto.RefreshResponse;
 import backend.budget.auth.entity.BlackList;
 import backend.budget.auth.entity.RefreshToken;
 import backend.budget.auth.entity.User;
+import backend.budget.auth.repository.BlackListRepository;
 import backend.budget.auth.repository.RefreshTokenRepository;
 import backend.budget.auth.repository.UserRepository;
 import backend.budget.common.constants.ErrorCode;
@@ -26,6 +28,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final BlackListRepository blackListRepository;
 
     @Transactional(readOnly = true)
     public AuthResponse getAuthToken(String userName, String password){
@@ -47,21 +50,39 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public String getRefresh(String refreshToken){
+    public RefreshResponse getRefresh(String accessToken, String refreshToken){
+
         // redis 엔티티 조회
-        RefreshToken redis = refreshTokenRepository.findById(refreshToken)
-                .orElseThrow(() -> new GeneralException(ErrorCode.INVALID_AUTH_TOKEN));
+        RefreshToken redis = refreshTokenRepository.findByRefreshToken(refreshToken);
+        if (redis == null) {
+            throw new GeneralException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
 
-        User user = userRepository.findByUserName(redis.getUserName())
-                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+        // refreshToken 유효성 검사
+        if (!jwtTokenProvider.validateCredential(refreshToken)) {
+            throw new GeneralException(ErrorCode.INVALID_AUTH_TOKEN);
+        }
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword());
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        // 블랙리스트 확인
+        BlackList blackList = blackListRepository.findById(refreshToken).orElse(null);
+        if (blackList != null) {
+            throw new GeneralException(ErrorCode.BLACKLISTED_TOKEN);  // 블랙리스트에 있는 토큰이면 예외 처리
+        }
 
-        // AccessToken 재발급
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
 
-        return newAccessToken;
+        return new RefreshResponse(newAccessToken);
+    }
+
+    @Transactional(readOnly = true)
+    public void deleteAuthToken(String accessToken, String refreshToken){
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+        refreshTokenRepository.deleteById(authentication.getName());
+
+        // 블랙리스트 저장
+        Long expiraion = jwtTokenProvider.getExpiration(refreshToken);
+        BlackList blackList = new BlackList(accessToken, refreshToken, expiraion);
+        blackListRepository.save(blackList);
     }
 }
