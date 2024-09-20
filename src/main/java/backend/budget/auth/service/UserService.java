@@ -53,4 +53,10 @@ public class UserService {
             throw new BadCredentialsException(ErrorCode.PASSWORD_MISMATCH.getMessage());
         }
     }
+
+    @Transactional(readOnly = true)
+    public void logout(String accessToken, String refreshToken){
+        log.info("Remove token for user: ");
+        authService.deleteAuthToken(accessToken, refreshToken);
+    }
 }
