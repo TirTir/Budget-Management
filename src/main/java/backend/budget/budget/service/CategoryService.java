@@ -20,6 +20,7 @@ public class CategoryService {
         return categoryRepository.findAll().stream()
                 .map(category -> {
                     CategoryResponse response = new CategoryResponse();
+                    response.setId(category.getId());
                     response.setName(category.getName());
                     return response;
                 })

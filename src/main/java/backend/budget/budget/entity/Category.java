@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Getter @Builder
 @NoArgsConstructor
@@ -19,7 +17,4 @@ public class Category {
 
     @Column(nullable = false, unique = true)
     private String name;
-
-    @OneToMany
-    private List<Budget> budgets;
 }
