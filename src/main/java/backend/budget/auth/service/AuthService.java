@@ -58,7 +58,7 @@ public class AuthService {
 
         // refreshToken 유효성 검사
         if (!jwtTokenProvider.validateCredential(refreshToken)) {
-            throw new GeneralException(ErrorCode.INVALID_AUTH_TOKEN);
+            throw new GeneralException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         // 블랙리스트 확인

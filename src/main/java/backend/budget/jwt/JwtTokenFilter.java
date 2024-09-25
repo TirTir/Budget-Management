@@ -29,9 +29,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String token = jwtTokenProvider.resolveToken(request); // JWT 토큰
         String requestURI = request.getRequestURI(); // 요청 URI
 
-        log.info("Request URI: {}", requestURI);
-        log.info("Extracted token: {}", token);
-
         String path = request.getRequestURI();
         if (path.equals("/api/signup") || path.equals("/api/signin")) {
             filterChain.doFilter(request, response);  // 로그인, 회원가입 요청은 건너뛰기

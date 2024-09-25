@@ -1,5 +1,7 @@
 package backend.budget.jwt;
 
+import backend.budget.auth.entity.CustomUserDetails;
+import backend.budget.auth.service.CustomUserDeatilService;
 import backend.budget.common.constants.ErrorCode;
 import backend.budget.common.exceptions.GeneralException;
 import io.jsonwebtoken.*;
@@ -12,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +32,13 @@ public class JwtTokenProvider {
     private final long refreshExpirationTime;
 
     private final String roles = "USER";
+    private final CustomUserDeatilService customUserDeatilService;
 
     public JwtTokenProvider (
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.token.access-expiration-time}") long accessExpirationTime,
-            @Value("${jwt.token.refresh-expiration-time}") long refreshExpirationTime
-    ){
+            @Value("${jwt.token.refresh-expiration-time}") long refreshExpirationTime,
+            CustomUserDeatilService customUserDeatilService){
         // 시크릿 값을 복호화하여 SecretKey 생성
         try{
             byte[] keyBytes = Decoders.BASE64.decode(secret);
@@ -46,6 +50,7 @@ public class JwtTokenProvider {
 
         this.accessExpirationTime = accessExpirationTime;
         this.refreshExpirationTime = refreshExpirationTime;
+        this.customUserDeatilService = customUserDeatilService;
     }
 
     @Transactional(readOnly = true)
@@ -134,8 +139,9 @@ public class JwtTokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        // 사용자 이름과 권한을 포함한 인증 객체 생성
-        return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        // 사용자 정보와 권한을 포함한 인증 객체 생성
+        CustomUserDetails userDetails = customUserDeatilService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
     }
 
     @Transactional(readOnly = true)
