@@ -74,8 +74,8 @@ public class BudgetService {
             String category = (String) avgBudget[0];
             Double avgAmount = (Double) avgBudget[1]; // 카테고리 평균
 
-            double percentage = avgAmount / totalPercentage;
-            categoryPercentages.put(category, percentage * 100);  // 비율을 %로 변환
+            double percentage = (avgAmount / totalPercentage) * 100;
+            categoryPercentages.put(category, percentage);
         }
 
         // 10% 이하의 항목들
@@ -112,7 +112,7 @@ public class BudgetService {
             BudgetResponse response = new BudgetResponse();
             response.setCategory("기타");
 
-            long amount = Math.round(totalBudget * etcPercentage);
+            long amount = Math.round(totalBudget * etcPercentage / 100);
             response.setAmount(amount);
 
             suggestBudgets.add(response);
