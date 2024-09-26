@@ -1,6 +1,5 @@
 package backend.budget.jwt;
 
-import backend.budget.auth.service.AuthService;
 import backend.budget.common.constants.ErrorCode;
 import backend.budget.common.exceptions.GeneralException;
 import jakarta.servlet.*;

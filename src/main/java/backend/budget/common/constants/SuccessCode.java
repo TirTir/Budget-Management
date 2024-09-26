@@ -14,7 +14,8 @@ public enum SuccessCode {
     SUCCESS_LOGOUT(HttpStatus.OK, "로그아웃 성공"),
 
     SUCCESS_CATEGORY_LIST(HttpStatus.OK, "카테고리 목록 반환 성공"),
-    SUCCESS_SET_BUDGET(HttpStatus.OK, "예산 설정 성공");
+    SUCCESS_SET_BUDGET(HttpStatus.OK, "예산 설정 성공"),
+    SUCCESS_SUGGEST_BUDGET(HttpStatus.OK, "예산 추천 성공");
 
     private final HttpStatus status;
     private final String message;
