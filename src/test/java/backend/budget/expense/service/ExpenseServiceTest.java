@@ -35,13 +35,12 @@ class ExpenseServiceTest {
     @Mock
     private CustomUserDetails customUserDetails;
 
-    private CustomUserDetails mockUserDetails;
     private Category mockCategory;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(customUserDetails.getUser()).thenReturn(user); // 유저 설정
+        when(customUserDetails.getUser()).thenReturn(user);
         System.out.println("Test Before");
     }
 
@@ -59,7 +58,7 @@ class ExpenseServiceTest {
                 .thenReturn(Optional.of(mockCategory));
 
         // Act
-        expenseService.createExpense(mockUserDetails, mockRequest);
+        expenseService.createExpense(customUserDetails, mockRequest);
 
         // Assert
         verify(expenseRepository, times(1)).save(any(Expense.class));

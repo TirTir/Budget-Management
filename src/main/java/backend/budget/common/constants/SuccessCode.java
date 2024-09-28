@@ -15,7 +15,9 @@ public enum SuccessCode {
 
     SUCCESS_CATEGORY_LIST(HttpStatus.OK, "카테고리 목록 반환 성공"),
     SUCCESS_SET_BUDGET(HttpStatus.OK, "예산 설정 성공"),
-    SUCCESS_SUGGEST_BUDGET(HttpStatus.OK, "예산 추천 성공");
+    SUCCESS_SUGGEST_BUDGET(HttpStatus.OK, "예산 추천 성공"),
+
+    SUCCESS_CREATE_EXPENSE(HttpStatus.OK, "지출 생성 성공");
 
     private final HttpStatus status;
     private final String message;
