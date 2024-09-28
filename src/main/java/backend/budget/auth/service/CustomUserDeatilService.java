@@ -1,5 +1,6 @@
 package backend.budget.auth.service;
 
+import backend.budget.auth.entity.CustomUserDetails;
 import backend.budget.auth.entity.User;
 import backend.budget.auth.repository.UserRepository;
 import backend.budget.common.constants.ErrorCode;
@@ -18,14 +19,10 @@ public class CustomUserDeatilService implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.USERNAME_NOT_FOUND.getMessage()));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUserName())
-                .password(user.getPassword())
-                .build();
+        return new CustomUserDetails(user);  // User 객체를 포함하는 CustomUserDetails 반환
     }
-
 }

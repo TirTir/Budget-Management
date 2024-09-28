@@ -1,6 +1,5 @@
 package backend.budget.jwt;
 
-import backend.budget.auth.service.AuthService;
 import backend.budget.common.constants.ErrorCode;
 import backend.budget.common.exceptions.GeneralException;
 import jakarta.servlet.*;
@@ -28,9 +27,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtTokenProvider.resolveToken(request); // JWT 토큰
         String requestURI = request.getRequestURI(); // 요청 URI
-
-        log.info("Request URI: {}", requestURI);
-        log.info("Extracted token: {}", token);
 
         String path = request.getRequestURI();
         if (path.equals("/api/signup") || path.equals("/api/signin")) {
