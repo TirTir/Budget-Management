@@ -30,6 +30,9 @@ class ExpenseServiceTest {
     private ExpenseRepository expenseRepository;
 
     @Mock
+    private Expense expense;
+
+    @Mock
     private User user;
 
     @Mock
@@ -41,6 +44,7 @@ class ExpenseServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         when(customUserDetails.getUser()).thenReturn(user);
+        mockCategory = new Category(); // 카테고리 객체 초기화
         System.out.println("Test Before");
     }
 
@@ -54,7 +58,7 @@ class ExpenseServiceTest {
         // Arrange
         mockCategory = new Category();
         CreateExpenseRequest mockRequest = new CreateExpenseRequest(10000L, LocalDate.now(), "Test memo", 1L);
-        when(categoryRepository.findById(mockRequest.getCategory()))
+        when(categoryRepository.findById(mockRequest.getCategoryId()))
                 .thenReturn(Optional.of(mockCategory));
 
         // Act
@@ -62,5 +66,25 @@ class ExpenseServiceTest {
 
         // Assert
         verify(expenseRepository, times(1)).save(any(Expense.class));
+    }
+
+    @Test
+    public void testUpdateExpense() {
+        // Arrange
+        Long expenseId = 1L;
+        Long categoryId = 2L;
+        CreateExpenseRequest request = new CreateExpenseRequest(10000L, LocalDate.now(), "Updated memo", categoryId);
+
+        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense)); // Mock Expense 반환
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(mockCategory));
+
+        // Act
+        expenseService.updateExpense(expenseId, request);
+
+        // Assert
+        // Assert
+        verify(expenseRepository, times(1)).findById(expenseId);
+        verify(categoryRepository, times(1)).findById(categoryId);
+        verify(expense, times(1)).updateExpense(request.getAmount(), request.getExpenseDate(), mockCategory, request.getMemo());
     }
 }
