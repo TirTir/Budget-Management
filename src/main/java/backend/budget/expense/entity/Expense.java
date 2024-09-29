@@ -27,6 +27,8 @@ public class Expense {
 
     private String memo;
 
+    private boolean excludedSum; // 합계 제외 여부
+
     @ManyToOne
     @JoinColumn(name = "categoryId")
     private Category category;
@@ -34,4 +36,15 @@ public class Expense {
     @ManyToOne
     @JoinColumn(name = "userId")
     private User user;
+
+    public void updateExpense(Long amount, LocalDate expenseDate, Category category, String memo) {
+        this.amount = amount;
+        this.expenseDate = expenseDate;
+        this.category = category;
+        this.memo = memo;
+    }
+
+    public void setExcludedSum(){
+        this.excludedSum = !this.excludedSum;
+    }
 }

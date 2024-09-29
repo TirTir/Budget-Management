@@ -11,5 +11,5 @@ public class CreateExpenseRequest {
     private Long amount;
     private LocalDate expenseDate;
     private String memo;
-    private Long category;
+    private Long categoryId;
 }

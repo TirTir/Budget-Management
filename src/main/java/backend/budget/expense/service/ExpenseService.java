@@ -26,7 +26,7 @@ public class ExpenseService {
     @Transactional
     public void createExpense(CustomUserDetails customUserDetails, CreateExpenseRequest request){
         User user = customUserDetails.getUser();
-        Category category = categoryRepository.findById(request.getCategory())
+        Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.CATEGORY_NOT_FOUND));
 
         Expense expense = Expense.builder()
@@ -37,6 +37,33 @@ public class ExpenseService {
                 .user(user)
                 .build();
 
+        expenseRepository.save(expense);
+    }
+
+    @Transactional
+    public void updateExpense(Long expenseId, CreateExpenseRequest request){
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.EXPENSE_NOT_FOUND));
+
+        Category category = null;
+        if(request.getCategoryId() != null){
+            category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new GeneralException(ErrorCode.CATEGORY_NOT_FOUND));
+        }
+
+        expense.updateExpense(request.getAmount(), request.getExpenseDate(), category, request.getMemo());
+    }
+
+    @Transactional
+    public void deleteExpense(Long expenseId) {
+        expenseRepository.deleteById(expenseId);
+    }
+
+    @Transactional
+    public void excludeSum(Long expenseId) {
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.EXPENSE_NOT_FOUND));
+        expense.setExcludedSum();
         expenseRepository.save(expense);
     }
 }
