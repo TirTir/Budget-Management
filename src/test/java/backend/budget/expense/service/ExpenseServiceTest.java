@@ -87,4 +87,31 @@ class ExpenseServiceTest {
         verify(categoryRepository, times(1)).findById(categoryId);
         verify(expense, times(1)).updateExpense(request.getAmount(), request.getExpenseDate(), mockCategory, request.getMemo());
     }
+
+    @Test
+    public void testDeleteExpense() {
+        // Arrange
+        Long expenseId = 1L;
+
+        // Act
+        expenseService.deleteExpense(expenseId);
+
+        // Assert
+        verify(expenseRepository, times(1)).deleteById(expenseId);
+    }
+
+    @Test
+    public void testExcludeSum() {
+        // Arrange
+        Long expenseId = 1L;
+        when(expenseRepository.findById(expenseId)).thenReturn(Optional.of(expense));
+
+        // Act
+        expenseService.excludeSum(expenseId);
+
+        // Assert
+        verify(expenseRepository, times(1)).findById(expenseId);
+        verify(expense, times(1)).setExcludedSum();
+        verify(expenseRepository, times(1)).save(expense);
+    }
 }
