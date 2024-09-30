@@ -12,6 +12,8 @@ import backend.budget.expense.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 public class ExpenseService {
 
@@ -45,13 +47,17 @@ public class ExpenseService {
         Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.EXPENSE_NOT_FOUND));
 
-        Category category = null;
+        Category category = expense.getCategory();
         if(request.getCategoryId() != null){
             category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new GeneralException(ErrorCode.CATEGORY_NOT_FOUND));
         }
 
-        expense.updateExpense(request.getAmount(), request.getExpenseDate(), category, request.getMemo());
+        Long amount = (request != null) ? request.getAmount() : expense.getAmount();
+        LocalDate expenseDate = (request != null) ? request.getExpenseDate() : expense.getExpenseDate();
+        String memo = (request != null) ? request.getMemo() : expense.getMemo();
+
+        expense.updateExpense(amount, expenseDate, category, memo);
     }
 
     @Transactional
