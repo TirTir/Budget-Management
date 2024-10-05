@@ -19,12 +19,15 @@ public enum SuccessCode {
     SUCCESS_SUGGEST_BUDGET(HttpStatus.OK, "예산 추천 성공"),
 
     SUCCESS_CREATE_EXPENSE(HttpStatus.OK, "지출 생성 성공"),
-    SUCCESS_EXPENSE_LIST(HttpStatus.OK, "지출 목록 반환 성공"),
-    SUCCESS_DETAIL_EXPENSE(HttpStatus.OK, "지출 상세목록 반환 성공"),
+    SUCCESS_EXPENSE_LIST(HttpStatus.OK, "지출 목록조회 성공"),
+    SUCCESS_DETAIL_EXPENSE(HttpStatus.OK, "지출 상세조회 성공"),
     SUCCESS_UPDATE_EXPENSE(HttpStatus.OK, "지출 업데이트 성공"),
     SUCCESS_DELETE_EXPENSE(HttpStatus.OK, "지출 삭제 성공"),
     SUCCESS_EXCLUDE_EXPENSE(HttpStatus.OK, "지출 합계 제외 성공"),
 
+    SUCCESS_TODAY_EXPENSE(HttpStatus.OK, "오늘의 지출 정보 조회 성공"),
+    SUCCESS_SUGGEST_EXPENSE(HttpStatus.OK, "지출 추천 정보 조회 성공"),
+  
     SUCCESS_COMPARE_MONTH(HttpStatus.OK, "지난달 대비 소비율 비교 조회 성공"),
     SUCCESS_COMPARE_WEEK(HttpStatus.OK, "지난 요일 대비 소비율 비교 조회 성공"),
     SUCCESS_COMPARE_USER(HttpStatus.OK, "다른 사용자 대비 소비율 조회 성공");
