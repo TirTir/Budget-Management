@@ -20,4 +20,6 @@ public class RegisterRequest {
             message = "비밀번호는 영문자와 특수문자를 포함하여 8자 이상 20자 이하로 입력해주세요."
     )
     private String password;
+
+    private String discordWebhookUrl;
 }

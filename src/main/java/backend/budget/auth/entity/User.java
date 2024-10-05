@@ -10,8 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
-@Builder
+@Getter @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -20,5 +19,12 @@ public class User {
     private long id;
 
     private String userName; // 계정명
+
     private String password;
+
+    private String discordWebhookUrl; // 디스코드 웹훅 URL
+
+    public void setDiscordWebhookUrl(String discordWebhookUrl) {
+        this.discordWebhookUrl = discordWebhookUrl;
+    }
 }
