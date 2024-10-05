@@ -6,6 +6,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
+@AllArgsConstructor
 public class GuideExpenseResponse {
     private long totalAmount; // 총액
     private Map<String, CategoryExpenseDetail> categoryDetails;

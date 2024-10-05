@@ -6,6 +6,7 @@ import backend.budget.budget.entity.Budget;
 import backend.budget.budget.repository.BudgetRepository;
 import backend.budget.common.constants.ErrorCode;
 import backend.budget.common.exceptions.GeneralException;
+import backend.budget.expense.dto.GuideExpenseResponse;
 import backend.budget.expense.dto.SuggestExpenseResponse;
 import backend.budget.expense.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,47 @@ public class ConsultingService {
         this.expenseRepository = expenseRepository;
     }
 
-    private SuggestExpenseResponse suggestExpense(CustomUserDetails customUserDetails){
+    public GuideExpenseResponse getTodayExpense(CustomUserDetails customUserDetails){
+        User user = customUserDetails.getUser();
+        LocalDate today = LocalDate.now();
+        LocalDate startMonth = today.withDayOfMonth(1);
+        LocalDate endMonth = today.withDayOfMonth(today.lengthOfMonth());
+
+        // 전체 예산 조회 (월별 예산)
+        List<Budget> budgets = budgetRepository.findByUserIdAndPeriod(user.getId(), startMonth);
+
+        long totalSpent = 0;
+        Map<String, GuideExpenseResponse.CategoryExpenseDetail> categoryDetails = new HashMap<>();
+
+        long remainDays = ChronoUnit.DAYS.between(today, endMonth) + 1;
+
+        for (Budget budget : budgets) {
+            String category = budget.getCategory().getName();
+            long monthlyBudget = budget.getAmount();
+
+            // 오늘 사용한 금액 계산
+            long spentToday = expenseRepository.getTotalExpenseByUserIdAndCategoryIdAndDateBetween(
+                    user.getId(), budget.getCategory().getId(), today, today
+            );
+
+            // 적정 금액 계산
+            long idealAmount = monthlyBudget / today.lengthOfMonth();  // 오늘 적정 금액
+            double riskPercentage = (double) spentToday / idealAmount * 100; // 위험도 계산
+
+            // 지출 세부 정보 추가
+            GuideExpenseResponse.CategoryExpenseDetail detail = new GuideExpenseResponse.CategoryExpenseDetail(
+                    idealAmount, spentToday, riskPercentage
+            );
+            categoryDetails.put(category, detail);
+
+            // 총 지출에 추가
+            totalSpent += spentToday;
+        }
+
+        return new GuideExpenseResponse(totalSpent, categoryDetails);
+    }
+
+    public SuggestExpenseResponse suggestExpense(CustomUserDetails customUserDetails){
         User user = customUserDetails.getUser();
         LocalDate today = LocalDate.now();
         LocalDate startMonth = today.withDayOfMonth(1);
@@ -70,8 +111,6 @@ public class ConsultingService {
         String message = getMessage(totalSpent, totalBudget);
 
         return new SuggestExpenseResponse(dailySuggestTotalExpense, categoryBudget, message);
-        // 고려사항 1. 과다 소비
-
     }
 
     // 소비 상태에 따른 메시지
