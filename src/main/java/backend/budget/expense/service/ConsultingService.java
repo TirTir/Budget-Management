@@ -9,6 +9,7 @@ import backend.budget.common.exceptions.GeneralException;
 import backend.budget.expense.dto.GuideExpenseResponse;
 import backend.budget.expense.dto.SuggestExpenseResponse;
 import backend.budget.expense.repository.ExpenseRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class ConsultingService {
 
@@ -37,34 +39,34 @@ public class ConsultingService {
         // 전체 예산 조회 (월별 예산)
         List<Budget> budgets = budgetRepository.findByUserIdAndPeriod(user.getId(), startMonth);
 
+        log.info("Retrieved budgets: " + budgets);
+
         long totalSpent = 0;
         Map<String, GuideExpenseResponse.CategoryExpenseDetail> categoryDetails = new HashMap<>();
 
-        long remainDays = ChronoUnit.DAYS.between(today, endMonth) + 1;
-
         for (Budget budget : budgets) {
             String category = budget.getCategory().getName();
-            long monthlyBudget = budget.getAmount();
 
             // 오늘 사용한 금액 계산
             long spentToday = expenseRepository.getTotalExpenseByUserIdAndCategoryIdAndDateBetween(
                     user.getId(), budget.getCategory().getId(), today, today
             );
 
+            log.info("Spent today for category " + category + ": " + spentToday);
+            totalSpent += spentToday;
+
             // 적정 금액 계산
-            long idealAmount = monthlyBudget / today.lengthOfMonth();  // 오늘 적정 금액
+            long idealAmount = budget.getAmount() / today.lengthOfMonth();  // 오늘 적정 금액
             double riskPercentage = (double) spentToday / idealAmount * 100; // 위험도 계산
 
             // 지출 세부 정보 추가
             GuideExpenseResponse.CategoryExpenseDetail detail = new GuideExpenseResponse.CategoryExpenseDetail(
                     idealAmount, spentToday, riskPercentage
             );
+
             categoryDetails.put(category, detail);
-
-            // 총 지출에 추가
-            totalSpent += spentToday;
         }
-
+        log.info("Total spent today: " + totalSpent);
         return new GuideExpenseResponse(totalSpent, categoryDetails);
     }
 
@@ -89,6 +91,9 @@ public class ConsultingService {
         ).sum();
         long remainBudget = totalBudget - totalSpent;
         long remainDays = ChronoUnit.DAYS.between(today, endMonth) + 1;
+
+        log.info("Total Budget: {}, Total Spent: {}, Remaining Budget: {}, Remaining Days: {}",
+                totalBudget, totalSpent, remainBudget, remainDays);
 
         Map<String, Long> categoryBudget = new HashMap<>(); // 카테고리별 남은 예산
         for(Budget budget : budgets){
