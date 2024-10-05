@@ -12,6 +12,7 @@ public enum SuccessCode {
     SUCCESS_SIGNIN(HttpStatus.OK, "로그인 성공"),
     SUCCESS_TOKEN_REFRESH(HttpStatus.OK, "AccessToken 갱신 성공"),
     SUCCESS_LOGOUT(HttpStatus.OK, "로그아웃 성공"),
+    SUCCESS_UPDATE(HttpStatus.OK, "정보 업데이트 성공"),
 
     SUCCESS_CATEGORY_LIST(HttpStatus.OK, "카테고리 목록 반환 성공"),
     SUCCESS_SET_BUDGET(HttpStatus.OK, "예산 설정 성공"),

@@ -3,6 +3,7 @@ package backend.budget.auth.service;
 import backend.budget.auth.dto.AuthRequest;
 import backend.budget.auth.dto.AuthResponse;
 import backend.budget.auth.dto.RegisterRequest;
+import backend.budget.auth.entity.CustomUserDetails;
 import backend.budget.auth.entity.User;
 import backend.budget.auth.repository.UserRepository;
 import backend.budget.common.constants.ErrorCode;
@@ -23,7 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthService authService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void register(RegisterRequest request) {
 
         // 계정 중복 확인
@@ -34,9 +35,17 @@ public class UserService {
         User new_user =User.builder()
                 .userName(request.getUserName())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .discordWebhookUrl(request.getDiscordWebhookUrl())
                 .build();
 
         userRepository.save(new_user);
+    }
+
+    @Transactional
+    public void updateDiscordWebhookUrl(CustomUserDetails customUserDetails, String discordWebhookUrl) {
+        User user = customUserDetails.getUser();
+        user.setDiscordWebhookUrl(discordWebhookUrl);  // 디스코드 웹훅 URL 설정
+        userRepository.save(user);
     }
 
     @Transactional(readOnly = true)

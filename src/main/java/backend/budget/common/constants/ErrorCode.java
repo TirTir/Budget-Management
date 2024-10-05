@@ -27,6 +27,7 @@ public enum ErrorCode {
 
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 카테고리를 찾을 수 없습니다."),
     EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 지출을 찾을 수 없습니다."),
+    BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, "설정된 예산을 찾을 수 없습니다."),
 
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     FORBIDDEN_RESOURCE(HttpStatus.FORBIDDEN, "이 리소스에 접근할 권한이 없습니다."),

@@ -1,6 +1,7 @@
 package backend.budget.auth.controller;
 
 import backend.budget.auth.dto.*;
+import backend.budget.auth.entity.CustomUserDetails;
 import backend.budget.auth.service.AuthService;
 import backend.budget.auth.service.UserService;
 import backend.budget.common.constants.SuccessCode;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -83,5 +85,12 @@ public class AuthController {
         String accessToken = jwtTokenProvider.resolveToken(request);
         userService.logout(accessToken, refreshRequest.getRefreshToken());
         return CommonResponse.res(true, SuccessCode.SUCCESS_LOGOUT);
+    }
+
+    @PutMapping("/{userId}/discord")
+    public CommonResponse<Void> updateDiscordWebhookUrl(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody String newWebhookUrl) {
+        log.info("[디스코드 웹훅 수정 요청] ID: {}", customUserDetails.getUsername());
+        userService.updateDiscordWebhookUrl(customUserDetails, newWebhookUrl);
+        return CommonResponse.res(true, SuccessCode.SUCCESS_UPDATE);
     }
 }
