@@ -19,4 +19,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
                                                             @Param("categoryId") Long categoryId,
                                                             @Param("startDate") LocalDate startDate,
                                                             @Param("endDate") LocalDate endDate);
+
+    // 특정 날짜 범위 내 지출한 금액의 합계 (카테고리 없이)
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user.id = :userId AND e.expenseDate BETWEEN :startDate AND :endDate")
+    Long getTotalExpenseByUserAndDateBetween(@Param("userId") Long userId,
+                                             @Param("startDate") LocalDate startDate,
+                                             @Param("endDate") LocalDate endDate);
 }
