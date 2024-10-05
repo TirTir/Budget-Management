@@ -11,37 +11,37 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 public class DiscordService {
-    private final WebClient suggestClient;
-    private final WebClient guideClient;
+    private final WebClient webClient;
 
-    public DiscordService(WebClient suggestClient, WebClient guideClient) {
-        this.suggestClient = suggestClient;
-        this.guideClient = guideClient;
+    public DiscordService(WebClient webClient) {
+        this.webClient = webClient;
     }
 
-    public Mono<Void> sendSuggestExpense(SuggestExpenseResponse response) {
+    public Mono<Void> sendSuggestExpense(String webHookUrl, SuggestExpenseResponse response) {
         DiscordMessage discordMessage = new DiscordMessage();
         discordMessage.setContent("오늘의 지출 추천");
         discordMessage.setData(response);
 
-        return suggestClient.post()
+        return webClient.post()
+                .uri(webHookUrl)
                 .bodyValue(discordMessage)
                 .retrieve()
                 .bodyToMono(String.class)
                 .then()
-                .doOnError(error -> log.error("Runtime WebHook 전송 에러 - {}", error.getMessage()));
+                .doOnError(error -> System.err.println("디스코드 알림 전송 실패: " + error.getMessage()));
     }
 
-    public Mono<Void> sendGuideExpense(GuideExpenseResponse response) {
+    public Mono<Void> sendGuideExpense(String webHookUrl, GuideExpenseResponse response) {
         DiscordMessage discordMessage = new DiscordMessage();
         discordMessage.setContent("오늘의 지출 안내");
         discordMessage.setData(response);
 
-        return suggestClient.post()
+        return webClient.post()
+                .uri(webHookUrl)
                 .bodyValue(discordMessage)
                 .retrieve()
                 .bodyToMono(String.class)
                 .then()
-                .doOnError(error -> log.error("Runtime WebHook 전송 에러 - {}", error.getMessage()));
+                .doOnError(error -> System.err.println("디스코드 알림 전송 실패: " + error.getMessage()));
     }
 }
