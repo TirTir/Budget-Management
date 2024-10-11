@@ -35,6 +35,40 @@ https://github.com/TirTir/Budget-Management.git
 
 <br>
 
+## 📌 프로젝트 구조
+- API 공통 응답 형식
+  - 오류 및 공통 응답을 표준화하여 API 응답을 체계적으로 관리하였습니다.
+  - 성공 및 에러 코드와 메시지를 정의하여, 클라이언트 측에서 에러 핸들링을 처리할 수 있도록 하였습니다.
+  
+   <br>
+   
+  ```json
+  {
+      "success": "true",
+      "message": "회원가입 성공",
+      "data": {
+           "accessToken":
+           "refreshToken":
+       }
+  }
+  ```
+  ```json
+  {
+    "success": false,
+    "message": "해당하는 사용자를 찾을 수 없습니다.",
+    "status": "NOT_FOUND",
+  }
+  ```
+ 
+- 구현 과정
+  - 엔티티 설계
+  - DTO 생성
+  - service / repository 생성
+  - controller 생성
+
+<br>
+<br>
+
 ## 📌 주요 기능
 **회원가입**
 
